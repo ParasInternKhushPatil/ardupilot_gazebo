@@ -103,6 +103,8 @@ struct fdmPacket
   /// \brief Model rangefinder value. Default to -1 to use sitl rangefinder.
   double rangefinder = -1.0;
 */
+  // double range = -1.0;
+  double rangefinder = -1.0;
 };
 
 /// \brief Control class
@@ -621,6 +623,15 @@ void ArduPilotPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
     this->dataPtr->controls.push_back(control);
     controlSDF = controlSDF->GetNextElement("control");
+
+    // Load Rangefinder
+    this->model = _model;
+    this->node = transport::NodePtr(new transport::Node());
+    this->node->Init(this->model->GetWorld()->Name());
+    std::string topicName = "~/" + this->model->GetName() + "/" + this->model->GetName() + "/lidar/link/sensor/scan";
+    this->sub = (this->node)->Subscribe(topicName, &ArduPilotPlugin::UpdateRangeFinder, this);
+
+    std::cout << "Rangefinder topic subscribed to: " << topicName << "\n";
   }
 
   // Get sensors
@@ -1219,5 +1230,12 @@ void ArduPilotPlugin::SendState() const
   // airspeed :     wind = Vector3(environment.wind.x, environment.wind.y, environment.wind.z)
    // pkt.airspeed = (pkt.velocity - wind).length()
 */
+
+  pkt.rangefinder = this->rangefinder;
   this->dataPtr->socket_out.Send(&pkt, sizeof(pkt));
+}
+
+void ArduPilotPlugin::UpdateRangeFinder(ConstLaserScanStampedPtr &laser) {
+  const double range = laser->scan().ranges().Get(0);
+  this->rangefinder = std::isinf(range) ? 0.0 : range;
 }
