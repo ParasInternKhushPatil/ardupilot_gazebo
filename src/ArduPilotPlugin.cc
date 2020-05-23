@@ -38,6 +38,8 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include <cmath>
+#include <iostream>
 #include <sdf/sdf.hh>
 #include <ignition/math/Filter.hh>
 #include <gazebo/common/Assert.hh>
@@ -105,6 +107,8 @@ struct fdmPacket
 */
   // double range = -1.0;
   double rangefinder = -1.0;
+
+  // ArduPilotPlugin::Vector3f rangefinder360[RANGEFINDER360_SAMPLES];
 };
 
 /// \brief Control class
@@ -624,14 +628,22 @@ void ArduPilotPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
     this->dataPtr->controls.push_back(control);
     controlSDF = controlSDF->GetNextElement("control");
 
-    // Load Rangefinder
+
+    // Load Gazebo Transport Node
     this->model = _model;
     this->node = transport::NodePtr(new transport::Node());
     this->node->Init(this->model->GetWorld()->Name());
-    std::string topicName = "~/" + this->model->GetName() + "/" + this->model->GetName() + "/lidar/link/sensor/scan";
-    this->sub = (this->node)->Subscribe(topicName, &ArduPilotPlugin::UpdateRangeFinder, this);
 
-    std::cout << "Rangefinder topic subscribed to: " << topicName << "\n";
+    // Downward Rangefinder
+    std::string rangefinderTopicName = "~/" + this->model->GetName() + "/lidar/lidar_link/sensor/scan";
+    this->rangefinderSub = (this->node)->Subscribe(rangefinderTopicName, &ArduPilotPlugin::UpdateRangeFinder, this);
+
+    // 360 Rangefinder
+    // std::string rangefinder360TopicName = "~/" + this->model->GetName() + "/lidar_360/lidar_360_link/sensor/scan";
+    // this->rangefinder360Sub = (this->node)->Subscribe(rangefinder360TopicName, &ArduPilotPlugin::UpdateRangeFinder360, this);
+
+    std::cout << "Rangefinder topic subscribed to: " << rangefinderTopicName << "\n";
+    // std::cout << "Rangefinder360 topic subscribed to: " << rangefinder360TopicName << "\n";
   }
 
   // Get sensors
@@ -1231,11 +1243,23 @@ void ArduPilotPlugin::SendState() const
    // pkt.airspeed = (pkt.velocity - wind).length()
 */
 
-  pkt.rangefinder = this->rangefinder;
+  pkt.rangefinder = rangefinder;
+  // for (size_t i = 0; i < RANGEFINDER360_SAMPLES; i++)
+  //   pkt.rangefinder360[i] = rangefinder360[i];
   this->dataPtr->socket_out.Send(&pkt, sizeof(pkt));
 }
 
 void ArduPilotPlugin::UpdateRangeFinder(ConstLaserScanStampedPtr &laser) {
   const double range = laser->scan().ranges().Get(0);
-  this->rangefinder = std::isinf(range) ? 0.0 : range;
+  this->rangefinder = std::isinf(range) ? RANGEFINDER_MAX_DISTANCE : range;
 }
+
+// void ArduPilotPlugin::UpdateRangeFinder360(ConstLaserScanStampedPtr &laser) {
+//   for (size_t i = 0; i < RANGEFINDER360_SAMPLES; i++) {
+//     double range = laser->scan().ranges().Get(i);
+//     if (std::isinf(range)) range = RANGEFINDER360_MAX_DISTANCE;
+//     rangefinder360[i].x = range * cos(RANGEFINDER360_ANGLE * i);
+//     rangefinder360[i].y = range * sin(RANGEFINDER360_ANGLE * i);
+//     rangefinder360[i].z = 0;
+//   }
+// }

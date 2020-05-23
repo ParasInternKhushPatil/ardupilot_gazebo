@@ -17,6 +17,11 @@
 #ifndef GAZEBO_PLUGINS_ARDUPILOTPLUGIN_HH_
 #define GAZEBO_PLUGINS_ARDUPILOTPLUGIN_HH_
 
+#define RANGEFINDER_MAX_DISTANCE 5000
+#define RANGEFINDER360_MAX_DISTANCE 200
+#define RANGEFINDER360_SAMPLES 8
+#define RANGEFINDER360_ANGLE (2 * M_PI / RANGEFINDER360_SAMPLES)
+
 #include <sdf/sdf.hh>
 #include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
@@ -94,14 +99,22 @@ namespace gazebo
     private: ignition::math::Pose3d gazeboXYZToNED;
 
     // Rangefinder
+    public:
+      // struct Vector3f {
+      //   float x, y, z;
+      // };
+
     private:
       double rangefinder;
+      // Vector3f rangefinder360[RANGEFINDER360_SAMPLES];
       physics::ModelPtr model;
       transport::NodePtr node;
-      transport::SubscriberPtr sub;
+      transport::SubscriberPtr rangefinderSub;
+      // transport::SubscriberPtr rangefinder360Sub;
 
     public:
       void UpdateRangeFinder(ConstLaserScanStampedPtr &laser);
+      // void UpdateRangeFinder360(ConstLaserScanStampedPtr &laser);
   };
 }
 #endif
