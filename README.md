@@ -11,6 +11,7 @@ This is a playground until I get some time to push the correct patch to gazebo m
 So you can expect things to not be up-to-date.  
 This assume that your are using Ubuntu 18.04 or Ubuntu 20.04
 
+
 ## Usage :
 I assume you already have Gazebo installed with ROS (or without).  
 If you don't have it yet, install ROS with `sudo apt install ros-noetic-desktop-full`
