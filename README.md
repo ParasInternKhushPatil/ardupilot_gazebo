@@ -2,22 +2,22 @@
 
 ## Requirements :
 Native Ubuntu able to run full 3D graphics.
-Gazebo version 8.x or greater
-The dev branch will works on gazebo >= 8.x  
-For Gazebo 7 use branch gazebo7
+Gazebo version 11.x or greater
+The dev branch will works on gazebo >= 11.x  
+For Gazebo 9 use branch gazebo9
 
 ## Disclamer : 
 This is a playground until I get some time to push the correct patch to gazebo master (I got hard time to work with mercurial..)!  
 So you can expect things to not be up-to-date.  
-This assume that your are using Ubuntu 16.04 or Ubuntu 18.04
+This assume that your are using Ubuntu 18.04 or Ubuntu 20.04
 
 ## Usage :
 I assume you already have Gazebo installed with ROS (or without).  
-If you don't have it yet, install ROS with `sudo apt install ros-melodic-desktop-full`
-(follow instruction here http://wiki.ros.org/melodic/Installation/Ubuntu).  
+If you don't have it yet, install ROS with `sudo apt install ros-noetic-desktop-full`
+(follow instruction here http://wiki.ros.org/noetic/Installation/Ubuntu).  
 Due to a bug in current gazebo release from ROS, please update gazebo with OSRF version from http://gazebosim.org/tutorials?tut=install_ubuntu
 
-libgazeboX-dev must be installed, X be your gazebo version (9 on ROS melodic).
+libgazeboX-dev must be installed, X be your gazebo version (9/11 on ROS noetic).
 
 For Gazebo X
 ````
